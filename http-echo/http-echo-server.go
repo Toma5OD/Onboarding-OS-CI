@@ -1,13 +1,13 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
 func echoHandler(w http.ResponseWriter, r *http.Request) {
-	body, _ := ioutil.ReadAll(r.Body)
-	w.Write(body)
+	// Use io.Copy to read the body and write it back to the response
+	io.Copy(w, r.Body)
 }
 
 func main() {
