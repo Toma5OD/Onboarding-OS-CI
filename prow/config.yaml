@@ -1,0 +1,15 @@
+plank:
+  job_url_prefix: 'https://github.com/org/repo'
+  job_url_template: 'https://github.com/org/repo/pulls'
+  report_template: 'https://github.com/org/repo/issues'
+
+prowjob_namespace: default
+log_level: debug
+
+tide:
+  merge_method:
+    org/repo: squash
+
+triggers:
+- repos:
+  - org/repo

@@ -1,0 +1,4 @@
+# plugins.yaml
+triggers:
+- repos:
+  - Toma5OD/Onboarding-OS-CI
