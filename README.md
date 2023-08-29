@@ -8,15 +8,15 @@ This repository contains completed tasks and projects as part of the onboarding 
 
 ### Phase 2 - Learn the Basics
 
-- **[GNU Sort](./gnu-sort/)**: A Go program that reimplements GNU sort. Read more in [go_sorting_program.md](./gnu-sort/go_sorting_program.md).
+- **[GNU Sort](./gnu-sort/)**: A Go program that reimplements GNU sort. Read more in [go_sorting_program.md](./gnu-sort/README.md).
   
-- **[HTTP Echo](./http-echo/)**: A Go HTTP server that serves as an echo server. Further details in [go_http_program.md](./http-echo/go_http_program.md).
+- **[HTTP Echo](./http-echo/)**: A Go HTTP server that serves as an echo server. Further details in [go_http_program.md](./http-echo/README.md).
 
 - **[Linux Shell Scripting Assignments](./Linux-Shell-Scripting-Assignments/)**: Various Bash scripts for different exercises.
 
 ### Phase 3 - Containers and Prow
 
-- **[Docker](./docker/)**: Contains a Dockerfile and resources to containerize the HTTP Echo Server. Additional information in [echo-docker-html.md](./docker/echo-docker-html.md).
+- **[Docker](./docker/)**: Contains a Dockerfile and resources to containerize the HTTP Echo Server. Additional information in [echo-docker-html.md](./docker/README.md).
 
 ## How to Use
 
