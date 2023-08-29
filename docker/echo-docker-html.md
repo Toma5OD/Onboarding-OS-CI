@@ -1,34 +1,73 @@
-# Onboarding OS-CI Repository
+# HTTPS Echo Server in Go with Docker
 
-## Overview
+## Description
 
-This repository contains completed tasks and projects as part of the onboarding process for joining the OpenShift CI team. The tasks are based on a [structured onboarding document](https://docs.google.com/document/d/1WGH2cajZFkaR-dvPVIAZFUlgC5M0OhWLVTf-Zg9mI9w/edit#heading=h.37u1n9n9k12l) (Red Hat staff access only).
+This Go program creates an HTTP server that listens on port 8080. The server responds by echoing the received request body back to the client. The program is also containerized using Docker for easy deployment.
 
-## Phases and Projects
+## How It Works
 
-### Phase 2 - Learn the Basics
+- Uses Go's `net/http` package to create an HTTP server.
+- Listens on port 8080 and handles requests at the `/echo` endpoint.
+- Uses `io.Copy` to echo the request body back to the client.
+- Containerized with Docker to run inside a Podman container.
 
-- **[GNU Sort](./gnu-sort/)**: A Go program that reimplements GNU sort. Read more in [go_sorting_program.md](./gnu-sort/go_sorting_program.md).
+## Features
+
+- Echos back the request body received at `/echo`.
+- Serves a static HTML file (`index.html`) for user interaction.
   
-- **[HTTP Echo](./http-echo/)**: A Go HTTP server that serves as an echo server. Further details in [go_http_program.md](./http-echo/go_http_program.md).
-
-- **[Linux Shell Scripting Assignments](./Linux-Shell-Scripting-Assignments/)**: Various Bash scripts for different exercises.
-
-### Phase 3 - Containers and Prow
-
-- **[Docker](./docker/)**: Contains a Dockerfile and resources to containerize the HTTP Echo Server. Additional information in [echo-docker-html.md](./docker/echo-docker-html.md).
-
 ## How to Use
 
-1. Clone this repository: `git clone https://github.com/Toma5OD/Onboarding-OS-CI.git`
-2. Navigate into the directory of the project you are interested in.
-3. Follow the specific instructions in the corresponding Markdown files.
+### Prerequisites
 
-## Contributing
+Make sure you have Go, Docker, and Podman installed on your machine.
 
-Feel free to contribute. Make sure to follow the existing coding styles and comment structures.
+### Prepare Go Files
 
-## License
+Place your Go source files (`http-echo-server.go`) and any HTML files (`index.html`) in the `docker` directory.
 
-This repository is licensed under the terms stated in the [LICENSE](./LICENSE) file.
+```bash
+cd docker/
+```
 
+### Build the Docker Image
+
+Navigate to the `docker` directory and run the following command:
+
+```bash
+podman build -t https-echo-server .
+```
+
+### Run the Container
+
+After the build is successful, run the following command:
+
+```bash
+podman run -p 8080:8080 https-echo-server
+```
+
+### Test the Server
+
+Navigate to `http://localhost:8080` in your web browser to interact with the server.
+
+### Exec into the Running Container
+
+Find the container ID using `podman ps` and then exec into it using:
+
+```bash
+podman exec -it <container_id> /bin/sh
+```
+
+### Check Logs
+
+You can check the logs of the running container using:
+
+```bash
+podman logs <container_id>
+```
+
+## Notes
+
+- If you're running the server locally, replace `localhost` with the appropriate IP address if needed.
+
+Feel free to expand upon this README for more specific requirements or features related to your use case.

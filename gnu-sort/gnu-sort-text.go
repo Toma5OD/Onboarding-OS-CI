@@ -10,7 +10,6 @@ import (
 func main() {
 	// Open the file "input.txt" in read-only mode
 	file, _ := os.Open("input.txt")
-	// Ensure the file is closed when the function exits
 	defer file.Close()
 
 	// Declare a slice to hold the lines from the file
