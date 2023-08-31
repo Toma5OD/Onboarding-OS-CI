@@ -2,7 +2,6 @@ package main
 
 import (
 	"reflect"
-	"sort"
 	"testing"
 )
 
@@ -18,7 +17,7 @@ func TestSortLines(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run("", func(t *testing.T) {
-			sort.Strings(test.input)
+			SortLines(test.input) // Call your wrapper function
 			if !reflect.DeepEqual(test.input, test.expected) {
 				t.Errorf("SortLines = %v; want %v", test.input, test.expected)
 			}

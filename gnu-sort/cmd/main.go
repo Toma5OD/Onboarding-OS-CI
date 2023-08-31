@@ -24,6 +24,11 @@ func ReadLines(r io.Reader) ([]string, error) {
 	return lines, nil
 }
 
+// SortLines sorts a slice of strings in ascending order.
+func SortLines(lines []string) {
+	sort.Strings(lines)
+}
+
 // WriteLines writes a slice of strings to an io.Writer.
 func WriteLines(w io.Writer, lines []string) error {
 	writer := bufio.NewWriter(w)
@@ -56,8 +61,7 @@ func main() {
 		return
 	}
 
-	// Inline sorting
-	sort.Strings(lines)
+	SortLines(lines)
 
 	outFile, err := os.Create("../sorted-file/sorted.txt")
 	if err != nil {
