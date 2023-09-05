@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -47,8 +49,96 @@ func WriteLines(w io.Writer, lines []string) error {
 	return nil
 }
 
+// WriteLinesToTempFile writes lines to a temporary file and returns its name.
+func WriteLinesToTempFile(lines []string) (string, error) {
+	tmpFile, err := os.CreateTemp("", "sort-chunk")
+	if err != nil {
+		return "", err
+	}
+	defer tmpFile.Close()
+
+	err = WriteLines(tmpFile, lines)
+	if err != nil {
+		return "", err
+	}
+
+	return tmpFile.Name(), nil
+}
+
+// LineRecord stores a line and its origin file.
+type LineRecord struct {
+	line string
+	file *os.File
+}
+
+// LineHeap is a priority queue for LineRecord based on line string.
+type LineHeap []LineRecord
+
+func (h LineHeap) Len() int           { return len(h) }
+func (h LineHeap) Less(i, j int) bool { return h[i].line < h[j].line }
+func (h LineHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *LineHeap) Push(x interface{}) {
+	*h = append(*h, x.(LineRecord))
+}
+
+func (h *LineHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+// MergeTempFiles merges multiple sorted temp files into a single sorted output file.
+func MergeTempFiles(tempFiles []string, outFile *os.File) error {
+	h := &LineHeap{}
+	heap.Init(h)
+	fileReaders := make([]*bufio.Reader, len(tempFiles))
+
+	// Open all temp files and read the first line from each, add to heap.
+	for i, fileName := range tempFiles {
+		file, err := os.Open(fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		fileReaders[i] = bufio.NewReader(file)
+
+		line, err := fileReaders[i].ReadString('\n')
+		if err != nil {
+			return err
+		}
+		heap.Push(h, LineRecord{line: line, file: file})
+	}
+
+	writer := bufio.NewWriter(outFile)
+	defer writer.Flush()
+
+	for h.Len() > 0 {
+		smallest := heap.Pop(h).(LineRecord)
+		_, err := writer.WriteString(smallest.line)
+		if err != nil {
+			return err
+		}
+
+		newLine, err := bufio.NewReader(smallest.file).ReadString('\n')
+		if err == nil {
+			heap.Push(h, LineRecord{line: newLine, file: smallest.file})
+		} else if err != io.EOF {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func main() {
-	file, err := os.Open("../input.txt")
+	// Flag for external sorting
+	useExternalSort := flag.Bool("external", false, "Use external sorting")
+	flag.Parse()
+
+	file, err := os.Open("../input4.txt")
 	if err != nil {
 		log.Printf("Error reading file: %s", err)
 		return
@@ -61,17 +151,54 @@ func main() {
 		return
 	}
 
-	SortLines(lines)
+	if *useExternalSort {
+		// 1. Sort lines and write them into multiple temp files
+		chunkSize := 1 // Or whatever size you want each chunk to be
+		var tempFiles []string
+		for i := 0; i < len(lines); i += chunkSize {
+			end := i + chunkSize
+			if end > len(lines) {
+				end = len(lines)
+			}
+			chunk := lines[i:end]
+			SortLines(chunk) // Sort each chunk
 
-	outFile, err := os.Create("../sorted-file/sorted.txt")
-	if err != nil {
-		log.Printf("Error writing to file: %s", err)
-		return
-	}
-	defer outFile.Close()
+			tempFileName, err := WriteLinesToTempFile(chunk)
+			if err != nil {
+				log.Printf("Error writing to temp file: %s", err)
+				return
+			}
 
-	err = WriteLines(outFile, lines)
-	if err != nil {
-		log.Printf("Error writing lines: %s", err)
+			tempFiles = append(tempFiles, tempFileName)
+		}
+
+		// 2. Merge these temp files into a single sorted file
+		outFile, err := os.Create("../sorted-file/sorted.txt")
+		if err != nil {
+			log.Printf("Error creating sorted file: %s", err)
+			return
+		}
+		defer outFile.Close()
+
+		err = MergeTempFiles(tempFiles, outFile)
+		if err != nil {
+			log.Printf("Error merging temp files: %s", err)
+			return
+		}
+
+	} else {
+		SortLines(lines)
+
+		outFile, err := os.Create("../sorted-file/sorted.txt")
+		if err != nil {
+			log.Printf("Error writing to file: %s", err)
+			return
+		}
+		defer outFile.Close()
+
+		err = WriteLines(outFile, lines)
+		if err != nil {
+			log.Printf("Error writing lines: %s", err)
+		}
 	}
 }
